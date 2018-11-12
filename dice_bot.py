@@ -13,6 +13,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
+    # TODO: change the command to a forward slash
     com_regex = re.compile(r'^\\(\w+)\s*(.*)?')
 
     if com_regex.search(message.content):
@@ -34,6 +35,8 @@ def dice_roll(roll_string):
     """ This takes a string in the form of typical DnD rolls (eg 2d8 or 1d20)
         These rolls can take modifiers and specify whether the number of high
         rolls that should be kept or tossed (eg 5d8+3 keep 3)"""
+    # TODO: default dice sides is d10
+    # TODO: exploding dice up to n times 3d10![n] default to 3
     dice_regex = re.compile(r"(\d*)d(\d+)\s*([+-])?(\d*)\s*(keep|toss|drop|[ktd])?\s*(\d*)\s*",
                             re.IGNORECASE | re.VERBOSE)
     if not roll_string:
@@ -83,6 +86,7 @@ def dice_roll(roll_string):
 def bot_help(message):
     if message:
         pass
+    # TODO: change the command character to '/'
     return 'Available commands are:\n\n\t\\{}'.format('\n\t\\'.join(commands.keys()))
 
 
@@ -90,5 +94,5 @@ commands = {'roll': dice_roll,
             'help': bot_help}
 
 with open('token.json') as cred_file:
-    discord_token = json.loads(cred_file.read())['DISCORD_TOKEN']
+    discord_token = json.load(cred_file)['DISCORD_TOKEN']
 client.run(discord_token)
