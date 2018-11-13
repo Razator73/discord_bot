@@ -1,7 +1,6 @@
 import discord
 import re
 import random
-import os
 import json
 
 
@@ -34,10 +33,10 @@ def dice_roll(roll_string):
     """ This takes a string in the form of typical DnD rolls (eg 2d8 or 1d20)
         These rolls can take modifiers and specify whether the number of high
         rolls that should be kept or tossed (eg 5d8+3 keep 3)"""
-    dice_regex = re.compile(r"(\d*)(?:d(\d+))?\s*([+-])?(\d*)\s*(keep|toss|drop|[ktd])?\s*(\d*)\s*(!?)(?:\[(\d+)\])?",
+    # TODO: multiple dice types in the same roll eg. 'd20 + 3d6' roll a d20 and 3d6 (right now this is seen as mod and drop 6)
+    dice_regex = re.compile(r"^(\d*)(?:d(\d+))?\s*([+-])?(\d*)\s*(keep|toss|drop|[ktd])?"
+                            r"\s*(\d*)\s*(?:(!)(?:\[(\d+)\])?)?\s*$",
                             re.IGNORECASE | re.VERBOSE)
-    if not roll_string:
-        return 'You have to try and roll something.'
 
     roll = dice_regex.search(roll_string)
     try:
@@ -108,7 +107,7 @@ def dice_roll(roll_string):
 def bot_help(message):
     if message:
         pass
-    return 'Available commands are:\n\n\t/{}'.format('\n\t/'.join(commands.keys()))
+    return 'Available commands are:\n\n\t```/{}```'.format('```\n\t```/'.join(commands.keys()))
 
 
 commands = {'roll': dice_roll,
