@@ -13,8 +13,7 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    # TODO: change the command to a forward slash
-    com_regex = re.compile(r'^\\(\w+)\s*(.*)?')
+    com_regex = re.compile(r'^/(\w+)\s*(.*)?')
 
     if com_regex.search(message.content):
         command, instructions = com_regex.search(message.content).groups()
@@ -35,9 +34,7 @@ def dice_roll(roll_string):
     """ This takes a string in the form of typical DnD rolls (eg 2d8 or 1d20)
         These rolls can take modifiers and specify whether the number of high
         rolls that should be kept or tossed (eg 5d8+3 keep 3)"""
-    # TODO: default dice sides is d10
-    # TODO: exploding dice up to n times 3d10![n] default to 3
-    dice_regex = re.compile(r"(\d*)d(\d+)\s*([+-])?(\d*)\s*(keep|toss|drop|[ktd])?\s*(\d*)\s*",
+    dice_regex = re.compile(r"(\d*)(?:d(\d+))?\s*([+-])?(\d*)\s*(keep|toss|drop|[ktd])?\s*(\d*)\s*(!?)(?:\[(\d+)\])?",
                             re.IGNORECASE | re.VERBOSE)
     if not roll_string:
         return 'You have to try and roll something.'
@@ -47,35 +44,60 @@ def dice_roll(roll_string):
         assert roll, "Didn't recognize the roll, try again"
     except AssertionError:
         return "I didn't recognize \"{}\" as a valid roll".format(roll_string)
-    num_dice, sides, sign, mod, keep_toss, toss_num = roll.groups()
+    num_dice, sides, sign, mod, keep_toss, toss_num, exp, exp_times = roll.groups()
     int_mod = int(sign + mod) if sign and mod else 0
     num_dice = int(num_dice) if num_dice else 1
     toss_num = int(toss_num) if toss_num else 0
-    sides = int(sides)
+    sides = int(sides) if sides else 10
+    exp_times = int(exp_times) if exp_times else 3
+
+    try:
+        assert num_dice > toss_num, 'Can not toss/keep/drop more than the rolled number of dice'
+    except AssertionError:
+        return 'Invalid roll. Need to roll more dice than are kept/tossed/dropped.'
 
     rolled = []
+    sum_rolled = []
     for die in range(num_dice):
-        rolled.append(random.randint(1, sides))
+        roll_num = random.randint(1, sides)
+        if exp and roll_num == sides:
+            exp_roll = [roll_num]
+            i = 0
+            roll_sum = roll_num
+            while roll_num == sides and i < exp_times:
+                roll_num = random.randint(1, sides)
+                exp_roll.append(roll_num)
+                i += 1
+                roll_sum += roll_num
+            rolled.append(exp_roll)
+            sum_rolled.append(roll_sum)
+        else:
+            rolled.append(roll_num)
+            sum_rolled.append(roll_num)
 
     # Keep or toss the higher rolls.
     discarded = []
     if keep_toss and keep_toss.lower() in ('k', 'keep'):
         for i in range(len(rolled) - toss_num):
-            discarded.append(min(rolled))
-            rolled.remove(min(rolled))
+            discard_index = sum_rolled.index(min(sum_rolled))
+            discarded.append(rolled.pop(discard_index))
+            sum_rolled.pop(discard_index)
     if keep_toss and keep_toss.lower() in ('t', 'toss'):
         for i in range(toss_num):
-            discarded.append(max(rolled))
-            rolled.remove(max(rolled))
+            discard_index = sum_rolled.index(max(sum_rolled))
+            discarded.append(rolled.pop(discard_index))
+            sum_rolled.pop(discard_index)
     if keep_toss in ('d', 'drop'):
         for i in range(toss_num):
-            discarded.append(min(rolled))
-            rolled.remove(min(rolled))
+            discard_index = sum_rolled.index(min(sum_rolled))
+            discarded.append(rolled.pop(discard_index))
+            sum_rolled.pop(discard_index)
 
     # Print out the string that will show the sum of the roll.
-    total = sum(rolled) + int_mod
-    sum_str = ' + '.join(str(x) if x != sides else '**{}**'.format(x) for x in rolled)
-    sum_str += ' + {}'.format(' + '.join('~~{}~~'.format(x) for x in discarded)) if discarded else ''
+    total = sum(sum_rolled) + int_mod
+    sum_str = ' + '.join('[{}]'.format(' + '.join(str(y) for y in x)) if type(x) == list else str(x) for x in rolled)
+    sum_str += ' + ~~{}~~'.format(' + '.join('[{}]'.format(' + '.join(str(y) for y in x))
+                                             if type(x) == list else str(x) for x in discarded)) if discarded else ''
     if not int_mod:
         sum_str += ' = {}'.format(total)
     else:
@@ -86,8 +108,7 @@ def dice_roll(roll_string):
 def bot_help(message):
     if message:
         pass
-    # TODO: change the command character to '/'
-    return 'Available commands are:\n\n\t\\{}'.format('\n\t\\'.join(commands.keys()))
+    return 'Available commands are:\n\n\t/{}'.format('\n\t/'.join(commands.keys()))
 
 
 commands = {'roll': dice_roll,
