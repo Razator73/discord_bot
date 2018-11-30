@@ -33,17 +33,20 @@ def dice_roll(roll_string):
     """ This takes a string in the form of typical DnD rolls (eg 2d8 or 1d20)
         These rolls can take modifiers and specify whether the number of high
         rolls that should be kept or tossed (eg 5d8+3 keep 3)"""
-    # TODO: multiple dice types in the same roll eg. 'd20 + 3d6' roll a d20 and 3d6 (right now this is seen as mod and drop 6)
-    dice_regex = re.compile(r"^(\d*)(?:d(\d+))?\s*([+-])?(\d*)\s*(keep|toss|drop|[ktd])?"
-                            r"\s*(\d*)\s*(?:(!)(?:\[(\d+)\])?)?\s*$",
+    # TODO: multiple dice types in the same roll eg. 'd20 + 3d6' roll a d20 and 3d6
+    # TODO: (right now this is seen as mod and drop 6)
+    # TODO: remove the spaces around the +- that'll be reserved for multiple dice
+    dice_regex = re.compile(r"(\d*)d(\d+)\s*([+-])?\s*(\d*)\s*(keep|toss|drop|[ktd])?"
+                            r"\s*(\d*)\s*(?:(!)(?:\[(\d+)\])?)?[\s+-]*",
                             re.IGNORECASE | re.VERBOSE)
 
-    roll = dice_regex.search(roll_string)
+    rolls = dice_regex.findall(roll_string)  # TODO: move to .findall()
     try:
-        assert roll, "Didn't recognize the roll, try again"
+        assert rolls, "Didn't recognize the roll, try again"
     except AssertionError:
         return "I didn't recognize \"{}\" as a valid roll".format(roll_string)
-    num_dice, sides, sign, mod, keep_toss, toss_num, exp, exp_times = roll.groups()
+    # TODO: for loop over the multiple dice rolls
+    num_dice, sides, sign, mod, keep_toss, toss_num, exp, exp_times = rolls[0]
     int_mod = int(sign + mod) if sign and mod else 0
     num_dice = int(num_dice) if num_dice else 1
     toss_num = int(toss_num) if toss_num else 0
@@ -55,6 +58,7 @@ def dice_roll(roll_string):
     except AssertionError:
         return 'Invalid roll. Need to roll more dice than are kept/tossed/dropped.'
 
+    # TODO: edit to account for multiple rolling
     rolled = []
     sum_rolled = []
     for die in range(num_dice):
