@@ -39,8 +39,8 @@ def dice_roll(roll_string):
                             re.IGNORECASE | re.VERBOSE)
 
     try:
-        search_roll = dice_regex.search(roll_string)
-        assert search_roll and search_roll.group(0) == roll_string, 'Roll not recognized'
+        # search_roll = dice_regex.search(roll_string)
+        # assert search_roll and search_roll.group(0) == roll_string, 'Roll not recognized'
         rolls = dice_regex.findall(roll_string)
         assert rolls, "Didn't recognize the roll, try again"
     except AssertionError:
