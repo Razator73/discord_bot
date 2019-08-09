@@ -34,8 +34,8 @@ def dice_roll(roll_string):
         These rolls can take modifiers and specify whether the number of high
         rolls that should be kept or tossed (eg 5d8+3 keep 3)"""
 
-    dice_regex = re.compile(r"(\d*)d(\d+)([+-])?(\d*)\s?(keep|toss|drop|[ktd])?"
-                            r"\s?(\d*)(?:(!)(?:\[(\d+)\])?)?(?:\s+([+-]?)\s*)?",
+    dice_regex = re.compile(r"(\d*)d(\d+)([+-])?(\d*)(\s?keep\s?|\s?toss\s?|\s?drop\s?|[ktd])?"
+                            r"(\d*)(?:(!)(?:\[(\d+)\])?)?(?:\s+([+-])\s+)?",
                             re.IGNORECASE | re.VERBOSE)
 
     try:
@@ -49,6 +49,7 @@ def dice_roll(roll_string):
     all_rolled = []
     for roll in rolls:
         num_dice, sides, sign, mod, keep_toss, toss_num, exp, exp_times, next_sign = roll
+        keep_toss = keep_toss.strip()
         int_mod = int(sign + mod) if sign and mod else 0
         num_dice = int(num_dice) if num_dice else 1
         toss_num = int(toss_num) if toss_num else 0
