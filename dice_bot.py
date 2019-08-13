@@ -76,7 +76,7 @@ def get_roll_string(all_rolled):
         rolled, sum_rolled, discarded, mod, int_mod, sign, next_sign = die_roll
         total += add_or_sub * (sum(sum_rolled) + int_mod)
         sum_str = ' + '.join('{{{}}}'.format(' + '.join(str(y) for y in x))
-                              if type(x) == list else str(x) for x in rolled)
+                             if type(x) == list else str(x) for x in rolled)
         sum_str += ' + ~~{}~~'.format(' + '.join('[{}]'.format(' + '.join(str(y) for y in x))
                                                  if type(x) == list else str(x) for x in discarded)) \
             if discarded else ''
