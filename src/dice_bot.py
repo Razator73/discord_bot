@@ -117,9 +117,11 @@ def dice_roll(roll_string):
 
 
 def bot_help(message):
+    global commands
     if message:
         pass
-    return 'Available commands are:\n\n\t```/{}```'.format('```\n\t```/'.join(commands.keys()))
+    command_str = ['    /'.join(x) + f'    {y["description"]}'for x, y in commands.items()]
+    return 'Available commands are:\n\n\t```/{}```'.format('```\n\t```/'.join(command_str))
 
 
 def run():
@@ -135,8 +137,9 @@ def run():
 
         if com_regex.search(message.content):
             command, instructions = com_regex.search(message.content).groups()
+            func = [y['function'] for x, y in commands.items() if command in x][0]
             instructions = instructions.lstrip() if instructions else instructions
-            msg = commands[command](instructions)
+            msg = func(instructions)
             await client.send_message(message.channel, msg)
 
 
@@ -147,12 +150,14 @@ def run():
         print(client.user.id)
         print('-------')
 
-    commands = {'roll': dice_roll,
-                'help': bot_help}
-
     discord_token = os.environ['DISCORD_TOKEN']
     client.run(discord_token)
 
+
+commands = {('roll', 'r'): {'function': dice_roll,
+                            'description': 'Used to roll dice (eg. 2d6+3)'},
+            ('help', 'h'): {'function': bot_help,
+                            'description': 'list available commands'}}
 
 if __name__ == '__main__':
     run()
