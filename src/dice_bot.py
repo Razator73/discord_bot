@@ -1,7 +1,8 @@
-import discord
-import re
+import os
 import random
-import json
+import re
+
+import discord
 
 
 def get_roll_vars(roll_string):
@@ -121,7 +122,7 @@ def bot_help(message):
     return 'Available commands are:\n\n\t```/{}```'.format('```\n\t```/'.join(commands.keys()))
 
 
-if __name__ == '__main__':
+def run():
     client = discord.Client()
 
 
@@ -146,10 +147,12 @@ if __name__ == '__main__':
         print(client.user.id)
         print('-------')
 
-
     commands = {'roll': dice_roll,
                 'help': bot_help}
 
-    with open('token.json') as cred_file:
-        discord_token = json.load(cred_file)['DISCORD_TOKEN']
+    discord_token = os.environ['DISCORD_TOKEN']
     client.run(discord_token)
+
+
+if __name__ == '__main__':
+    run()

@@ -1,3 +1,4 @@
 .idea/*
 token.json
 /test_rolling.py
+/src/discord_bot.egg-info/
