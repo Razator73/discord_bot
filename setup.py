@@ -9,8 +9,6 @@ setup(
     description='Simple python bot for Discord servers',
 
     author='Ryan Scott',
-    author_email='Please use pythontesting.net contact form.',
-    url='https://pragprog.com/book/bopytest',
 
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
