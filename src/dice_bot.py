@@ -121,7 +121,7 @@ def bot_help(message):
     if message:
         pass
     command_str = ['    /'.join(x) + f'    {y["description"]}'for x, y in commands.items()]
-    return 'Available commands are:\n\n\t```/{}```'.format('```\n\t```/'.join(command_str))
+    return 'Available commands are:\n\t```/{}```'.format('\n/'.join(command_str))
 
 
 def run():
