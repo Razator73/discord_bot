@@ -3,7 +3,7 @@ import random
 import re
 
 import discord
-
+from dotenv import load_dotenv
 
 def get_roll_vars(roll_string):
     dice_regex = re.compile(r"(\d*)d(\d+)([+-])?(\d*)(\s?keep\s?|\s?toss\s?|\s?drop\s?|[ktd])?"
@@ -160,4 +160,5 @@ commands = {('roll', 'r'): {'function': dice_roll,
                             'description': 'list available commands'}}
 
 if __name__ == '__main__':
+    load_dotenv()
     run()

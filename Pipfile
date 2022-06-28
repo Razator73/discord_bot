@@ -24,6 +24,7 @@ websockets = "==3.4"
 async_timeout = "==3.0.1"
 discord = "==0.16.12"
 discord-bot = {editable = true,path = "."}
+python-dotenv = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.10"
