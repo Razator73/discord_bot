@@ -1,3 +1,4 @@
+#!/usr/bin/env pipenv-shebang
 import os
 import random
 import re
