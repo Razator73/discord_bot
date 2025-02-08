@@ -4,7 +4,9 @@ import random
 import re
 
 import discord
+from discord.ext import commands
 from dotenv import load_dotenv
+
 
 def get_roll_vars(roll_string):
     dice_regex = re.compile(r"(\d*)d(\d+)([+-])?(\d*)(\s?keep\s?|\s?toss\s?|\s?drop\s?|[ktd])?"
@@ -117,48 +119,33 @@ def dice_roll(roll_string):
     return get_roll_string(all_rolled)
 
 
-def bot_help(message):
-    global commands
-    if message:
-        pass
-    command_str = ['    /'.join(x) + f'    {y["description"]}'for x, y in commands.items()]
+def bot_help():
+    bot_commands = {'roll': {'function': dice_roll,
+                             'description': 'Used to roll dice (eg. 2d6+3)'},
+                    'help': {'function': bot_help,
+                             'description': 'list available commands'}}
+    command_str = [f'{x}\t{y["description"]}'for x, y in bot_commands.items()]
     return 'Available commands are:\n\t```/{}```'.format('\n/'.join(command_str))
 
 
 def run():
-    client = discord.Client()
+    bot = commands.Bot(command_prefix='$', intents=discord.Intents.all())
+    print('test')
 
-
-    @client.event
-    async def on_message(message):
-        if message.author == client.user:
-            return
-
-        com_regex = re.compile(r'^/(\w+)\s*(.*)?')
-
-        if com_regex.search(message.content):
-            command, instructions = com_regex.search(message.content).groups()
-            func = [y['function'] for x, y in commands.items() if command in x][0]
-            instructions = instructions.lstrip() if instructions else instructions
-            msg = func(instructions)
-            await client.send_message(message.channel, msg)
-
-
-    @client.event
+    @bot.event
     async def on_ready():
-        print('Logged in as')
-        print(client.user.name)
-        print(client.user.id)
-        print('-------')
+        print(f'{bot.user} has connected to Discord!')
 
-    discord_token = os.environ['DISCORD_TOKEN']
-    client.run(discord_token)
+    @bot.command()
+    async def roll(ctx, *args):
+        """
+        This is the help text
+        """
+        roll_str = ' '.join([*args])
+        await ctx.send(dice_roll(roll_str))
 
+    bot.run(os.environ['DISCORD_TOKEN'])
 
-commands = {('roll', 'r'): {'function': dice_roll,
-                            'description': 'Used to roll dice (eg. 2d6+3)'},
-            ('help', 'h'): {'function': bot_help,
-                            'description': 'list available commands'}}
 
 if __name__ == '__main__':
     load_dotenv()
