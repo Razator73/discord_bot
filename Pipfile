@@ -10,6 +10,7 @@ ipython = "*"
 discord = "*"
 discord-bot = {editable = true,path = "."}
 python-dotenv = "*"
+razator-utils = "*"
 
 [requires]
 python_version = "3.12"

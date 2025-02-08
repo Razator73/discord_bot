@@ -1,9 +1,12 @@
 #!/usr/bin/env pipenv-shebang
+import argparse
 import os
 import random
 import re
+from pathlib import Path
 
 import discord
+import razator_utils
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -128,20 +131,19 @@ def bot_help():
     return 'Available commands are:\n\t```/{}```'.format('\n/'.join(command_str))
 
 
-def run():
+def run(logger):
     bot = commands.Bot(command_prefix='$', intents=discord.Intents.all())
-    print('test')
 
     @bot.event
     async def on_ready():
-        print(f'{bot.user} has connected to Discord!')
+        logger.info(f'{bot.user} has connected to Discord!')
 
     @bot.command()
-    async def roll(ctx, *args):
+    async def roll(ctx, *roll_args):
         """
         This is the help text
         """
-        roll_str = ' '.join([*args])
+        roll_str = ' '.join([*roll_args])
         await ctx.send(dice_roll(roll_str))
 
     bot.run(os.environ['DISCORD_TOKEN'])
@@ -149,4 +151,18 @@ def run():
 
 if __name__ == '__main__':
     load_dotenv()
-    run()
+    arg_parser = argparse.ArgumentParser(prog='dice_bot', description='Discord dice rolling bot')
+    arg_parser.add_argument('-v', '--stdout', action='store_true', help='Print logs to stdout')
+    args = arg_parser.parse_args()
+
+    if args.stdout:
+        main_logger = razator_utils.log.get_stout_logger('dice_bot', 'INFO')
+    else:
+        log_file = Path.home() / 'logs' / 'dice_bot.log'
+        log_file.parent.mkdir(exist_ok=True)
+        main_logger = razator_utils.log.get_file_logger('dice_bot', log_file, 'INFO')
+    # noinspection PyBroadException
+    try:
+        run(main_logger)
+    except Exception:
+        main_logger.exception()
